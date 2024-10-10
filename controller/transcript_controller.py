@@ -11,16 +11,16 @@ class TranscriptController:
         self.conn = Connection.get()
         self.holdings_repository = root_controller.holdings_repository
     def submit_order(self):
-        self.conn.execute("DROP TABLE orders")
         self.conn.execute(f"""CREATE TABLE IF NOT EXISTS orders (
-                      order_id integer PRIMARY KEY AUTOINCREMENT NOT NULL, 
+                      order_id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
                       date text,
                       order_type text,
                       ticker_symbol text,
                       quantity real,
                       price real,
                       value real,
-                      remaining real
+                      remaining real,
+                      status text DEFAULT "{EOrderStatus.OPEN}"
                   )""")
 
         info = {
@@ -33,8 +33,8 @@ class TranscriptController:
             "remaining": float(self.view.qnty_entry.get())
         }
 
-        self.conn.execute("INSERT INTO orders VALUES (:date, :order_type,"
-                       " :ticker_symbol, :quantity, :price, :value, :remaining)", info)
+        self.conn.execute("INSERT INTO orders (date,  order_type,  ticker_symbol,  quantity,  price,  value,  remaining) "
+                          "VALUES (:date, :order_type, :ticker_symbol, :quantity, :price, :value, :remaining)", info)
 
 
         self.update_holdings(info)
